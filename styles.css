@@ -1,0 +1,13 @@
+#message-container{
+    width: 80%;
+    height: 500px;
+    border: 1px solid grey;
+    border-radius: 10px;
+}
+
+.msg-row {
+    border: 1px solid black;
+    height: 30px;
+    width: 100%;
+}
+
