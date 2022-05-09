@@ -2,7 +2,7 @@ function addMsgToView(data){
     const msgContainer = document.getElementById("message-container");
     const newMsg = document.createElement("div");
     newMsg.classList.add("msg-row");
-    newMsg.innerText = data;
+    newMsg.innerText = `${data["username"]}:\n${data["message"]}`;
     msgContainer.appendChild(newMsg);
 }
 
@@ -34,7 +34,7 @@ document.getElementById("send-container").addEventListener("submit", event => {
     data = {"message":msgTxt, "room":"0000"}
     sock.emit("chat-message", data);
     // update own view
-    addMsgToView(msgTxt);
+    addMsgToView({"username": "bob", "message":msgTxt}); // todo: remove hardcoded username
     return false;
 })
 
