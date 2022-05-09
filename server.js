@@ -18,12 +18,15 @@ const genericRoomId = "0000";
 io.on('connection', socket => {
     console.log("connection");
     let identifier = socket.id;
-    shittyUserDatabase[identifier] = shittyUserGlobalIDs++;
+    let newUserObj = new Object();
+    newUserObj["globalId"] = shittyUserGlobalIDs++;
+    shittyUserDatabase[identifier] = newUserObj;
     // emits to user that connected
-    socket.emit('chat-message', `Hello you are user ${shittyUserDatabase[identifier]}`);
+    socket.emit('chat-message', `Hello you are user ${shittyUserDatabase[identifier]["globalId"]}`);
     console.log(shittyUserDatabase);
 
-    socket.join(genericRoomId);
+    // remove this once i change to different setup
+    //socket.join(genericRoomId);
 
     socket.on(JOIN_ROOM_EVENT, data =>{
         // data: {username:string, roomcode:string}
@@ -36,6 +39,8 @@ io.on('connection', socket => {
         socket.join(roomCode);
         // add to dict object: username, room code, socketId
         shittyUserDatabase[socket.id]["username"] = username;
+
+        socket.emit("chat-message", `Your username is ${username} and you are in room ${roomCode}`);
     });
 
     socket.on(CHAT_MESSAGE_EVENT, data => {
@@ -52,6 +57,14 @@ io.on('connection', socket => {
     socket.on(LEAVE_ROOM_EVENT, _ =>{
         // get the room they're in + broadcast 'left' message
     });
+
+    socket.on("disconnect", function(){
+        console.log("disconnect");
+        delete shittyUserDatabase[socket.id];
+    })
+
 });
 
 // gen room code
+
+// todo: figure out how to handle disconnects
