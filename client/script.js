@@ -11,7 +11,8 @@ function startSocketConnection(){
 
     socket.on("connect", (stream) => {
         console.log("connection");
-        socket.emit("join-room", {"roomcode":"0000", "username": "bob"});
+        let y = socket.emit("join-room", {"roomcode":"0000", "username": "bob"});
+        console.log(y);
     });
     
     socket.on("chat-message", data => {

@@ -1,26 +1,37 @@
 const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
+const path = require('path');
+const { nextTick } = require('process');
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static( __dirname + '/client' ));
+
+// express endpoints
 
 app.get("/", (req,res) =>{
-    res.send("welcome to your server!");
+    console.log("/ get");
+    res.redirect("/join");
+});
+
+app.get("/join", (req,res) => {
+    console.log("/join get");
+    res.sendFile(path.join(__dirname, "client", "/login.html"));
+    console.log("login.html sent");
+    //res.end();
 })
 
 app.post("/join", (req, res) =>{
     console.log('/join post');
-    //parse request
     console.log(`joining ${req.body.room} as ${req.body.username}`);
-    res.send("hello world");
-    //res.redirect("/chat");
-    //redirect
+    res.redirect("/chat");
 });
 
 app.get("/chat", (req,res) =>{
     console.log("/chat get");
-    res.send("chat.html");
+    res.sendFile(path.join(__dirname, "client", "/chat.html"));
+    console.log("chat.html sent");
 });
 
 // express server setup 
@@ -36,6 +47,8 @@ const io = require("socket.io")(3000, {cors: {
     methods: ["GET", "POST"]
 }});
 
+
+// socket protocol messages
 const CHAT_MESSAGE_EVENT = 'chat-message';
 const SERVER_MESSAGE_EVENT = 'server-message';
 const JOIN_ROOM_EVENT = 'join-room';
@@ -58,7 +71,7 @@ io.on('connection', socket => {
     shittyUserDatabase[identifier] = newUserObj;
 
     // emits to user that connected for immediate verification that it worked - change this later
-    socket.emit(SERVER_MESSAGE_EVENT, {"username":"System", "message":`Hello you are user ${shittyUserDatabase[identifier]["globalId"]}`});
+    //socket.emit(SERVER_MESSAGE_EVENT, {"username":"System", "message":`Hello you are user ${shittyUserDatabase[identifier]["globalId"]}`});
 
 
     socket.on(JOIN_ROOM_EVENT, data =>{
@@ -66,12 +79,14 @@ io.on('connection', socket => {
         // data: {username:string, roomcode:string}
         username = data["username"];
         roomCode = data["roomcode"];
+        console.log("join event", data);
 
-        console.log("global rooms: ", io.sockets.adapter.rooms);
         if (!io.sockets.adapter.rooms.get(roomCode)){
             roomCode = genRoomCode(4, io.sockets.adapter.rooms);
+            console.log("randomly generated room code: ", roomCode);
         }
 
+        console.log("global rooms: ", io.sockets.adapter.rooms);
         socket.join(roomCode);
         io.to(roomCode).emit(SERVER_MESSAGE_EVENT, {"username":"System", "message":`${username} has joined the room!`}); // todo: check this works
         console.log("rooms: ", socket.rooms);
@@ -83,6 +98,7 @@ io.on('connection', socket => {
     });
 
     socket.on(CHAT_MESSAGE_EVENT, data => {
+        console.log("chat message event");
         // event for when someone sends a message in the chat + we need to broadcast it
         // data: {message:string, room:string}
         message = data["message"];
@@ -125,11 +141,14 @@ io.on('connection', socket => {
 function genRoomCode(numLetters, existingCodes){
     const lettersToUse = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let code = "";
-    while (!existingCodes.has(code)){ // todo: make this better
+    let done = false;
+    while (!done){ // todo: make this better
+        code = "";
         for (i = 0; i < numLetters; i++){
-            randomPos = Math.floor(Math.random() * length(lettersToUse));
+            randomPos = Math.floor(Math.random() * lettersToUse.length);
             code += lettersToUse.substring(randomPos, randomPos+1);
         }
+        done = !existingCodes.has(code);
     }
     return code;
 }
