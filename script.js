@@ -12,14 +12,23 @@ function startSocketConnection(){
     socket.on("connect", (stream) => {
         console.log("connection");
         socket.emit("join-room", {"roomcode":"0000", "username": "bob"});
-    })
+    });
     
     socket.on("chat-message", data => {
         console.log(data);
         addMsgToView(data);
     });
 
+    socket.on("server-message", data =>{
+        console.log(data);
+        addMsgToView(data);
+    });
+
     return socket;
+}
+
+function submitCredentials(){
+    // get text fields for username + password + send to 
 }
 
 

@@ -7,18 +7,18 @@
     <title>Chatrooms</title>
 </head>
 <body>
-    <form id = "room-join" action="index.html" method="POST">
+    <form id = "room-join" action="http://localhost:3001/join" method="POST">
         <h1>Join Existing Room</h1>
         <label for="room-code">Room code:</label>
-        <input type="text" name="room-code"><br>
+        <input id="join-code" type="text" name="room-code" required><br>
         <label for="username">Username:</label>
-        <input type="text" name="username"><br>
+        <input id="join-username" type="text" name="username" required><br>
         <button type="submit">Join room</button>
     </form>
-    <form id="room-create" action="index.html" method="POST">
+    <form id="room-create" action="http://localhost:3001/join" method="POST">
         <h1>Create New Room</h1>
         <label for="username">Username:</label>
-        <input type="text" name="username"><br>
+        <input id="create-username" type="text" name="username" required><br>
         <button type="submit">Create room</button>
     </form>
 </body>
