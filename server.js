@@ -24,8 +24,21 @@ app.get("/join", (req,res) => {
 
 app.post("/join", (req, res) =>{
     console.log('/join post');
-    console.log(`joining ${req.body.room} as ${req.body.username}`);
-    res.redirect("/chat");
+    let username = req.body.username;
+    let roomcode = req.body.roomcode;
+    console.log(`joining ${roomcode} as ${username}`);
+    // check for valid room first
+
+    if (!roomcode){
+        roomcode = genRoomCode(4, io.sockets.adapter.rooms);
+        console.log("randomly generated room code: ", roomcode);
+    }
+    else if (!io.sockets.adapter.rooms.get(roomcode)){
+        console.log("invalid code");
+        res.redirect("/join");
+    }
+
+    res.redirect(`/chat?username=${username}&roomcode=${roomcode}`);
 });
 
 app.get("/chat", (req,res) =>{
@@ -81,11 +94,6 @@ io.on('connection', socket => {
         roomCode = data["roomcode"];
         console.log("join event", data);
 
-        if (!io.sockets.adapter.rooms.get(roomCode)){
-            roomCode = genRoomCode(4, io.sockets.adapter.rooms);
-            console.log("randomly generated room code: ", roomCode);
-        }
-
         console.log("global rooms: ", io.sockets.adapter.rooms);
         socket.join(roomCode);
         io.to(roomCode).emit(SERVER_MESSAGE_EVENT, {"username":"System", "message":`${username} has joined the room!`}); // todo: check this works
@@ -93,6 +101,7 @@ io.on('connection', socket => {
 
         // add to dict object: username, room code, socketId
         shittyUserDatabase[socket.id]["username"] = username;
+        shittyUserDatabase[socket.id]["room"] = roomCode;
 
         socket.emit(SERVER_MESSAGE_EVENT, {"username":"System", "message":`Your username is ${username} and you are in room ${roomCode}`});
     });
@@ -113,7 +122,8 @@ io.on('connection', socket => {
     });
 
     function sendLeaveMessage(room){
-        socket.to(room).emit(`${shittyUserDatabase[socket.id].username} has left the room`);
+        data = {"message":`${shittyUserDatabase[socket.id].username} has left the room`, "username":"System"};
+        socket.to(room).emit('chat-message', data);
     }
 
     // todo: test this
@@ -124,12 +134,9 @@ io.on('connection', socket => {
     });
 
     socket.on("disconnect", function(){
-        console.log("disconnect");
+        console.log("disconnect from room", shittyUserDatabase[socket.id].room);
 
-        socket.rooms.forEach(room =>{
-            sendLeaveMessage(room);
-            socket.leave(room); // maybe unnecessary?
-        });
+        sendLeaveMessage(shittyUserDatabase[socket.id].room);
 
         delete shittyUserDatabase[socket.id];
     });

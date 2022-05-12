@@ -1,3 +1,9 @@
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const username = urlParams.get('username');
+const roomcode = urlParams.get('roomcode');
+console.log(username, roomcode);
+
 function addMsgToView(data){
     const msgContainer = document.getElementById("message-container");
     const newMsg = document.createElement("div");
@@ -11,7 +17,7 @@ function startSocketConnection(){
 
     socket.on("connect", (stream) => {
         console.log("connection");
-        let y = socket.emit("join-room", {"roomcode":"0000", "username": "bob"});
+        let y = socket.emit("join-room", {"roomcode":roomcode, "username": username});
         console.log(y);
     });
     
@@ -41,10 +47,10 @@ document.getElementById("send-container").addEventListener("submit", event => {
     let msgTxt = document.getElementById("message-input").value;
     if (msgTxt.Length == 0) return false;
     // transmit msg + room
-    data = {"message":msgTxt, "room":"0000"}
+    data = {"message":msgTxt, "room":roomcode}
     sock.emit("chat-message", data);
     // update own view
-    addMsgToView({"username": "bob", "message":msgTxt}); // todo: remove hardcoded username
+    addMsgToView({"username": username, "message":msgTxt}); // todo: remove hardcoded username
     return false;
 })
 
