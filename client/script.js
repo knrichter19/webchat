@@ -41,7 +41,7 @@ function submitCredentials(){
 
 let sock = startSocketConnection();
 
-document.getElementById("send-container").addEventListener("submit", event => {
+document.getElementById("send-form").addEventListener("submit", event => {
     // don't submit anything - maybe change from using a form?
     event.preventDefault();
     let msgTxt = document.getElementById("message-input").value;

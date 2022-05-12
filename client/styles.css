@@ -1,13 +1,23 @@
 #message-container{
-    width: 80%;
     height: 500px;
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
     border: 1px solid grey;
     border-radius: 10px;
+    overflow-y: scroll;
 }
 
 .msg-row {
     border: 1px solid black;
-    height: 30px;
-    width: 100%;
+    padding: 10px;
+    margin: 10px;
 }
 
+#send-container{
+    padding: 30px;
+    max-width: 840px;
+    margin: 10px auto;
+    border-radius: 10px;
+    border: 1px solid blue;
+}
