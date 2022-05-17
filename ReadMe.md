@@ -1,0 +1,1 @@
+This in-progress project allows users to create and enter chatrooms with other users by providing usernames and/or room codes. This is my first project using node.js, express, and socket.io, and is being developed to practice programming client-server models.
